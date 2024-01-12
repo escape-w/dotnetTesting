@@ -40,9 +40,9 @@ stages:
     - checkout: self
       fetchDepth: 0
     
-    - task: NuGetToolInstaller@1
-      inputs:
-        versionSpec: 
+    #- task: NuGetToolInstaller@1
+    #  inputs:
+    #    versionSpec: 
 
     - task: NuGetCommand@2
       inputs:
