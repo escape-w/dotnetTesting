@@ -1,8 +1,8 @@
 trigger: 
   branches:
    include:
-   #- develop
-   #- qa
+   - develop
+   - qa
    - main
    #- release/*
   #paths:
