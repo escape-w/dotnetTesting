@@ -1,0 +1,99 @@
+trigger: 
+  branches:
+   include:
+   #- develop
+   #- qa
+   - main
+   #- release/*
+  #paths:
+    #include:
+    #- HelloFolder
+
+name: $(Build.SourceBranchName)-$(Date:ddMMyy)-$(Rev:rr)
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  buildConfiguration: 'Release'
+
+#variables:
+#  - name: ENV
+#    ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+#      value: 'PROD'
+#    ${{ elseif eq(variables['Build.SourceBranchName'], 'qa') }}:
+#      value: 'QA'  
+#    ${{ else }}:
+#      value: 'DEV'
+
+
+stages:
+- stage: BuildStage
+  displayName: "Build Stage"
+  jobs:
+  - job: DotnetAppliaction
+    workspace:
+      clean: all
+    timeoutInMinutes: 360
+    displayName: Building
+    steps:
+    - checkout: self
+      fetchDepth: 0
+    
+    - task: NuGetToolInstaller@1
+      inputs:
+        versionSpec: 
+
+    - task: NuGetCommand@2
+      inputs:
+        command: 'restore'
+        restoreSolution: 'unit-testing-using-dotnet-test.sln'
+        feedsToUse: 'select'
+    
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Write your PowerShell commands here.
+          
+          Write-Host "Hello World"
+          get-childitem
+        
+    #- task: PublishBuildArtifacts@1
+    #  condition: not(eq(variables['Build.SourceBranchName'], 'merge')) 
+    #  inputs:
+    #    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    #    ArtifactName: 'businessArchives'
+    #    publishLocation: 'Container'
+
+#- stage: Deployment
+  #condition: and(succeeded(), or(in(variables['Build.SourceBranchName'], 'main', 'qa', 'develop'), startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')))
+  #dependsOn: DotnetArtifacts
+  #jobs:
+  #- deployment: DotnetDeployment
+    #workspace:
+      #clean: all
+      #- ${{ if or(in(variables['Build.SourceBranchName'], 'main'), startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')) }}:
+        #- group: PROD
+      #- ${{ elseif  eq(variables['Build.SourceBranchName'], 'qa') }}: 
+        #- group: QA
+      #- ${{ else }}: 
+        #- group: DEV
+    #displayName: Dotnet Deployment
+    #environment: $(ENV)
+    #strategy:
+      #runOnce:
+        #deploy:
+          #steps:
+          #- task: Bash@3
+            #displayName: Creating Workspace
+            #inputs:
+              #targetType: 'inline'
+              #script: |
+                #echo "hello"
