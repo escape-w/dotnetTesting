@@ -65,7 +65,7 @@ stages:
           Write-Host "Hello World"
           get-childitem
           get-childitem D:\a\_temp
-          Get-Content D:\a\_temp\VssAdministrator_fv-az772-287_2024-01-12_11_28_28.trx
+          Get-Content D:\a\_temp\VssAdministrator_*.trx
         
     #- task: PublishBuildArtifacts@1
     #  condition: not(eq(variables['Build.SourceBranchName'], 'merge')) 
