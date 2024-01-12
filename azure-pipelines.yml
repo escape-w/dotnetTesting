@@ -98,11 +98,11 @@ stages:
     #    ArtifactName: 'businessArchives'
     #    publishLocation: 'Container'
 
-#- stage: Deployment
+- stage: Deployment
   #condition: and(succeeded(), or(in(variables['Build.SourceBranchName'], 'main', 'qa', 'develop'), startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')))
   #dependsOn: DotnetArtifacts
-  #jobs:
-  #- deployment: DotnetDeployment
+  jobs:
+  - deployment: DotnetDeployment
     #workspace:
       #clean: all
       #- ${{ if or(in(variables['Build.SourceBranchName'], 'main'), startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')) }}:
@@ -111,15 +111,15 @@ stages:
         #- group: QA
       #- ${{ else }}: 
         #- group: DEV
-    #displayName: Dotnet Deployment
+    displayName: Dotnet Deployment
     #environment: $(ENV)
-    #strategy:
-      #runOnce:
-        #deploy:
-          #steps:
-          #- task: Bash@3
-            #displayName: Creating Workspace
-            #inputs:
-              #targetType: 'inline'
-              #script: |
-                #echo "hello"
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            displayName: Creating Workspace
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "hello"
