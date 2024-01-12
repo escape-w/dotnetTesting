@@ -45,6 +45,11 @@ stages:
     #    versionSpec: 
     #not required if windows latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
 
+    #- task: UseDotNet@2
+    #  inputs:
+    #    packageType: 'sdk'
+    #    version: '6.x'
+
     #- task: NuGetCommand@2
     #  inputs:
     #    command: 'restore'
@@ -54,8 +59,14 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: 'test'
-        #projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
-        projects: '**/*.sln'
+        projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
+        #projects: '**/*.sln'
+        arguments: '--configuration $(buildConfiguration)'
+    
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: 'PrimeService/PrimeService.csproj'
         arguments: '--configuration $(buildConfiguration)'
 
     - task: PowerShell@2
