@@ -54,7 +54,8 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: 'test'
-        projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
+        #projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
+        projects: '**/*.sln'
         arguments: '--configuration $(buildConfiguration)'
 
     - task: PowerShell@2
