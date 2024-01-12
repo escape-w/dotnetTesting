@@ -68,6 +68,12 @@ stages:
         command: 'build'
         projects: 'PrimeService/PrimeService.csproj'
         arguments: '--configuration $(buildConfiguration)'
+    
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
     - task: PowerShell@2
       inputs:
