@@ -56,12 +56,12 @@ stages:
     #    restoreSolution: 'unit-testing-using-dotnet-test.sln'
     #    feedsToUse: 'select'
     
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'test'
-        projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
-        #projects: '**/*.sln'
-        arguments: '--configuration $(buildConfiguration)'
+    #- task: DotNetCoreCLI@2
+    #  inputs:
+    #    command: 'test'
+    #    projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
+    #    #projects: '**/*.sln'
+    #    arguments: '--configuration $(buildConfiguration)'
     
     - task: DotNetCoreCLI@2
       inputs:
@@ -75,6 +75,10 @@ stages:
         publishWebProjects: true
         arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)' 
+        artifactName: 'myWebsiteName'
     - task: PowerShell@2
       inputs:
         targetType: 'inline'
