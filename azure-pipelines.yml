@@ -72,7 +72,7 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: 'publish'
-        publishWebProjects: true
+        publishWebProjects: false
         arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
     - task: PublishPipelineArtifact@1
