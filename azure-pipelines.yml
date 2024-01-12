@@ -43,12 +43,13 @@ stages:
     #- task: NuGetToolInstaller@1
     #  inputs:
     #    versionSpec: 
+    #not required if windows latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
 
-    - task: NuGetCommand@2
-      inputs:
-        command: 'restore'
-        restoreSolution: 'unit-testing-using-dotnet-test.sln'
-        feedsToUse: 'select'
+    #- task: NuGetCommand@2
+    #  inputs:
+    #    command: 'restore'
+    #    restoreSolution: 'unit-testing-using-dotnet-test.sln'
+    #    feedsToUse: 'select'
     
     - task: DotNetCoreCLI@2
       inputs:
