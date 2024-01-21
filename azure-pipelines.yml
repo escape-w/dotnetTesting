@@ -68,7 +68,18 @@ stages:
         command: 'build'
         projects: 'PrimeService/PrimeService.csproj'
         arguments: '--configuration $(buildConfiguration)'
-    
+
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Write your PowerShell commands here.
+        
+          Write-Host "Hello World"
+          dotnet tool install --global security-scan --version 5.1.1
+          security-scan unit-testing-using-dotnet-test.sln --excl-proj=**/*Test*/** --cwe --export=sast-results.sarif
+          get-content sast-results.sarif
+
     - task: DotNetCoreCLI@2
       inputs:
         command: 'publish'
