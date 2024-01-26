@@ -36,6 +36,8 @@ stages:
     timeoutInMinutes: 360
     displayName: Building
     steps:
+    - checkout: self
+      fetchDepth: 0
     - task: PowerShell@2
       inputs:
         filePath: './test.ps1'
