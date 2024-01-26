@@ -1,137 +1,41 @@
-trigger: 
-  branches:
-   include:
-   - develop
-   - qa
-   - main
-   #- release/*
-  #paths:
-    #include:
-    #- HelloFolder
+trigger: none
 
 name: $(Build.SourceBranchName)-$(Date:ddMMyy)-$(Rev:rr)
 
 pool:
-  vmImage: windows-latest
+ vmImage: windows-latest
+
+parameters:
+ - name: configuration
+   displayName: "Configuration ex CONFIGURATION_1 "
+   type: string
+   default: "CONFIGURATION_1"
+   values:
+    - "CONFIGURATION_1"
+    - "CONFIGURATION_2"
+    - "CONFIGURATION_3"
+
+ - name: environment
+   displayName: "Select Environment "
+   type: string
+   default: "Stage"
+   values:
+    - "Stage"
+    - "Production"
 
 variables:
-  buildConfiguration: 'Release'
-
-#variables:
-#  - name: ENV
-#    ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
-#      value: 'PROD'
-#    ${{ elseif eq(variables['Build.SourceBranchName'], 'qa') }}:
-#      value: 'QA'  
-#    ${{ else }}:
-#      value: 'DEV'
-
+ - group : "${{ parameters.environment }}${{ parameters.configuration }}VARIABLES"
 
 stages:
-- stage: BuildStage
-  displayName: "Build Stage"
+- stage: Building
+  displayName: Build
   jobs:
-  - job: DotnetAppliaction
+  - job: CompilingCode
     workspace:
       clean: all
     timeoutInMinutes: 360
     displayName: Building
     steps:
-    - checkout: self
-      fetchDepth: 0
-    
-    #- task: NuGetToolInstaller@1
-    #  inputs:
-    #    versionSpec: 
-    #not required if windows latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
-
-    - task: UseDotNet@2
-      inputs:
-        packageType: 'sdk'
-        version: 
-
-    - task: NuGetCommand@2
-      inputs:
-        command: 'restore'
-        restoreSolution: 'unit-testing-using-dotnet-test.sln'
-        feedsToUse: 'select'
-    
-    #- task: DotNetCoreCLI@2
-    #  inputs:
-    #    command: 'test'
-    #    projects: 'PrimeService.Tests/PrimeService.Tests.csproj'
-    #    #projects: '**/*.sln'
-    #    arguments: '--configuration $(buildConfiguration)'
-    
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'build'
-        projects: 'PrimeService/PrimeService.csproj'
-        arguments: '--configuration $(buildConfiguration)'
-
     - task: PowerShell@2
       inputs:
-        targetType: 'inline'
-        script: |
-          # Write your PowerShell commands here.
-        
-          Write-Host "Hello World"
-          dotnet tool install --global security-scan --version 5.1.1
-          security-scan unit-testing-using-dotnet-test.sln --excl-proj=**/*Test*/** --cwe --export=sast-results.sarif
-          get-content sast-results.sarif
-
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'publish'
-        publishWebProjects: false
-        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)' 
-        artifactName: 'myWebsiteName'
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          # Write your PowerShell commands here.
-          
-          Write-Host "Hello World"
-          get-childitem
-          tree D:\a\_temp
-          tree D:\a\1\s\
-          #Get-Content D:\a\_temp\VssAdministrator_*.trx
-        
-    #- task: PublishBuildArtifacts@1
-    #  condition: not(eq(variables['Build.SourceBranchName'], 'merge')) 
-    #  inputs:
-    #    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    #    ArtifactName: 'businessArchives'
-    #    publishLocation: 'Container'
-
-- stage: Deployment
-  #condition: and(succeeded(), or(in(variables['Build.SourceBranchName'], 'main', 'qa', 'develop'), startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')))
-  #dependsOn: DotnetArtifacts
-  jobs:
-  - deployment: DotnetDeployment
-    #workspace:
-      #clean: all
-      #- ${{ if or(in(variables['Build.SourceBranchName'], 'main'), startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')) }}:
-        #- group: PROD
-      #- ${{ elseif  eq(variables['Build.SourceBranchName'], 'qa') }}: 
-        #- group: QA
-      #- ${{ else }}: 
-        #- group: DEV
-    displayName: Dotnet Deployment
-    #environment: $(ENV)
-    environment: test
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: Bash@3
-            displayName: Creating Workspace
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "hello"
+        arguments: '-firstname $(Key1)'
