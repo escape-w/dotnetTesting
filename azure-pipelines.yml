@@ -11,9 +11,9 @@ parameters:
    type: string
    default: "CONFIGURATION_1"
    values:
-    - "CONFIGURATION_1"
-    - "CONFIGURATION_2"
-    - "CONFIGURATION_3"
+    - "__CONFIGURATION_1__"
+    - "__CONFIGURATION_2__"
+    - "__CONFIGURATION_3__"
 
  - name: environment
    displayName: "Select Environment "
