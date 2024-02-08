@@ -30,19 +30,6 @@ stages:
 - stage: Building
   displayName: Build
   jobs:
-  - job: CompilingCode
-    workspace:
-      clean: all
-    timeoutInMinutes: 360
-    displayName: Building
-    steps:
-    - checkout: self
-      fetchDepth: 0
-    - task: PowerShell@2
-      inputs:
-        filePath: './test.ps1'
-        arguments: '-firstname $(Key1)'
-
   - job: JobA
     steps:
     - pwsh: |
@@ -60,5 +47,5 @@ stages:
     variables:
       targets: $[ dependencies.JobA.outputs['setTargets.targets'] ]
     steps:
-    - pwsh: Write-Host "${{ convertToJson(variables) }}"
+    - pwsh: Write-Host "$(targets)"
       displayName: 'Print all variables via expression'
