@@ -44,6 +44,6 @@ stages:
           # Write your PowerShell commands here.
           
           Write-Host "Hello World"
-          $jsonObject = ConvertTo-Json $(targets)
+          $jsonObject = ConvertTo-Json "$(targets)"
           $jsonObject
           write-host "$(conf)"
