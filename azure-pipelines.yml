@@ -6,15 +6,6 @@ pool:
  vmImage: windows-latest
 
 parameters:
- - name: configuration
-   displayName: "Configuration ex CONFIGURATION_1 "
-   type: string
-   default: "CONFIGURATION_1"
-   values:
-    - "__CONFIGURATION_1__"
-    - "__CONFIGURATION_2__"
-    - "__CONFIGURATION_3__"
-
  - name: environment
    displayName: "Select Environment "
    type: string
