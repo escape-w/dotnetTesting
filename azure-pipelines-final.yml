@@ -1,0 +1,140 @@
+trigger: none
+
+name: $(Build.SourceBranchName)-$(Date:ddMMyy)-$(Rev:rr)
+
+pool:
+ vmImage: windows-latest
+
+parameters:
+ - name: configuration
+   displayName: "Configuration ex: "
+   type: string
+  default: “_abc_”
+  values:
+   - “_bcd_”
+   - “_cde_”
+   - “_def_”
+   - “_efg_”
+   - "Debug"
+ - name: environment
+  displayName: "Select Environment: "
+  type: string
+  default: "Stage"
+  values:
+   - "Stage"
+   - "Production"
+
+variables:
+ # - name: deployVariable
+ # ${{ if eq(parameters.configuration, '_B_') }}:
+ #  value: 'true'
+ # ${{ else }}:
+  #  value: 'false'
+ - group : "${{ parameters.environment }}${{ parameters.configuration }}VARIABLES"
+ - group: "Pipeline_Configurations"
+
+stages:
+- stage: PPBuild
+ displayName: "PP Build"
+ jobs:
+ - job: DotnetAppliaction
+  displayName: "PP Build"
+  workspace:
+   clean: all
+  timeoutInMinutes: 360
+  steps:
+  - checkout: self
+   fetchDepth: 1
+   displayName: Cloning Repository
+
+  - task: NuGetToolInstaller@1
+   inputs:
+    versionSpec: $(NuGet_Version)
+  - task: NuGetCommand@2
+   inputs:
+    command: 'restore'
+    restoreSolution: 'PPV2.sln'
+    feedsToUse: 'select'
+  - task: DotNetCoreCLI@2
+   displayName: "Build"
+   inputs:
+    command: 'build'
+    projects: 'PPV2.sln'
+    arguments: '--configuration ${{ parameters.configuration }}'
+
+  - task: DotNetCoreCLI@2
+   displayName: "Publish"
+   inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'PPV2.sln'
+    arguments: '--configuration ${{ parameters.configuration }} --output $(Build.ArtifactStagingDirectory)'
+  
+  - task: PublishBuildArtifacts@1
+   inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+- stage: Deployment
+ jobs:
+ - deployment: PPDeployment
+  # condition: and(succeeded(), eq(variables['deployVariable'], 'true'))
+  displayName: PP Deployment
+  #variables:
+  # - group: ${{ variables.deploy_group }}
+  environment: ${{ parameters.environment }}
+  strategy:
+   runOnce:
+    deploy:
+     steps:
+       - checkout: self
+        fetchDepth: 1
+        displayName: Cloning the Repository
+
+       - task: AzureCLI@2
+       ## this will get change accordingly variable 
+        displayName: Creating Deployment Slot
+        inputs:
+         azureSubscription: '$(Subscription_ID)'
+         scriptType: 'ps'
+         scriptLocation: 'scriptPath'
+         scriptPath: 'AzPipeline/scripts/webappSlot.ps1'
+         arguments: '-resourceGroupName $(Resource_group) -appName $(App_Service_Name) -productionSlotName $(Production_Slot_Name) -targetSlotName $(Staging_Slot_Name)'
+
+       - task: AzureRmWebAppDeployment@4
+       ## this will get change accordingly variable 
+        displayName: Pre Deployment
+        inputs:
+         ConnectionType: 'AzureRM'
+         azureSubscription: '$(Subscription_ID)'
+         appType: 'webApp'
+         WebAppName: '$(App_Service_Name)'
+         deployToSlotOrASE: true
+         ResourceGroupName: '$(Resource_group)'
+         SlotName: '$(Staging_Slot_Name)'
+         packageForLinux: '$(Pipeline.Workspace)/drop/s.zip'
+
+ - job: waitForValidation
+  dependsOn: PPDeployment
+  displayName: External validation
+  pool: server
+  timeoutInMinutes: $[variables.TimeOutForValidationInMinutes] # job times out in 3 days
+  steps:
+  - task: ManualValidation@0
+   timeoutInMinutes: 1440 # task times out in 1 day
+   inputs:
+    notifyUsers: |
+
+    instructions: 'Please validate the build configuration and resume'
+    onTimeout: 'resume'
+ - job: Swap
+  dependsOn: waitForValidation
+  steps:
+  - task: AzureCLI@2
+   displayName: 'Swap Slots'
+   inputs:
+    azureSubscription: '$(Subscription_ID)'
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az webapp deployment slot swap --resource-group $(Resource_group) --name $(App_Service_Name) --slot $(Staging_Slot_Name) --target-slot production'
