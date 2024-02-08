@@ -37,3 +37,13 @@ stages:
     steps:
     - pwsh: Write-Host "$(targets)"
       displayName: 'Print all variables via expression'
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Write your PowerShell commands here.
+          
+          Write-Host "Hello World"
+          $jsonObject = ConvertFrom-Json $(targets)
+          $jsonObject
+          write-host "$(conf)"
