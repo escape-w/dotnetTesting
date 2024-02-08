@@ -14,9 +14,6 @@ parameters:
     - "Stage"
     - "Production"
 
-variables:
- - group : "${{ parameters.environment }}${{ parameters.configuration }}VARIABLES"
-
 stages:
 - stage: Building
   displayName: Build
