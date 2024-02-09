@@ -22,6 +22,15 @@ stages:
     steps:
     - task: PowerShell@2
       inputs:
+        targetType: 'inline'
+        script: |
+          # Write your PowerShell commands here.
+          
+          Write-Host "Hello World"
+          git log
+          git diff HEAD HEAD~
+    - task: PowerShell@2
+      inputs:
         filePath: './test.ps1'
       name: setTargets
     
