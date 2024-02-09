@@ -20,10 +20,18 @@ stages:
   jobs:
   - job: JobA
     steps:
-    - pwsh: |
-        $json="{'abc': {'conf': 'buffalorun'}, 'xyz': {'conf': 'macusooke'}, 'mnc': {'conf': 'default'}}"
-        Write-Host "##vso[task.setvariable variable=targets;isOutput=true]$json"
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Write your PowerShell commands here.
+          
+          Write-Host "Hello World"
+          
+          $json="{'abc': {'conf': 'buffalorun'}, 'xyz': {'conf': 'macusooke'}, 'mnc': {'conf': 'default'}}"
+                  Write-Host "##vso[task.setvariable variable=targets;isOutput=true]$json"
       name: setTargets
+    
     - script: echo $(setTargets.targets)
       name: echovar
 
