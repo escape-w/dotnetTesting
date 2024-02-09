@@ -33,6 +33,8 @@ stages:
               xyz = 'macusooke'
           	mnc = 'default'
           }
+
+          get-childitem
           
           $folders=$(git diff HEAD HEAD~ --name-only  |%{Split-Path $_ -Parent }| %{Split-Path $_ -Leaf})
           
