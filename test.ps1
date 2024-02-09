@@ -26,6 +26,6 @@ foreach ($folder in $folders) {
 
 $jsonContent = $jsonObject | ConvertTo-Json -Depth 100
 
-
+write-host "$jsonContent"
 
 Write-Host "##vso[task.setvariable variable=targets;isOutput=true]$jsonContent "
